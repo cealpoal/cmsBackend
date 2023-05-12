@@ -17,6 +17,14 @@ export class GalleryService {
         return gallery;
     }
 
+    public async GetPhoto(user:sessionRequest, id: string):Promise<galleryResponse> {
+        const list = await this.GetGallery(user).then(data => {
+            return data;
+        });
+        const photo:any = list.find(item => item.id == id);
+        return photo;
+    }
+
     public async PostGallery(user:sessionRequest, data:galleryRequest[]):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
         return this.base.WriteFile('picasso',data).then(data => { return data;} );
@@ -24,7 +32,7 @@ export class GalleryService {
 
     public async PutGallery(user:sessionRequest, id: string, description:string):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
-        let list:any = this.GetGallery(user).then(data => { return data; });
+        let list = await this.GetGallery(user).then(data => { return data; });
         const index = this.FindElement(user, list, id);
         list[index].description = description;
         return await this.PostGallery(user, list).then(data => {
@@ -34,10 +42,10 @@ export class GalleryService {
 
     public async DeleteGallery(user:sessionRequest, ids: string[]):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
-        let list:any = this.GetGallery(user).then(data => { return data; });
+        let list = await this.GetGallery(user).then(data => { return data; });
         ids.forEach(item => {
             const index = this.FindElement(user, list, item);
-            list.splice(index,1);
+            list = list.splice(index,1);
         });
         return this.PostGallery(user, list).then(data => { return data; });
     }

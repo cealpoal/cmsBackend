@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { galleryRequest, sessionRequest } from 'src/dto/requests';
 import { GalleryService } from 'src/services/gallery/gallery.service';
 
@@ -8,7 +8,12 @@ export class GalleryController {
 
     @Get()
     async get(@Body() user: sessionRequest){
-        return this.gallery.GetGallery(user).then(data => { return data;});
+        return this.gallery.GetGallery(user).then(data => { return data });
+    }
+
+    @Get(':fileId')
+    async getPhoto(@Param("fileId") fileId:string, @Body('user') user: sessionRequest){
+        return this.gallery.GetPhoto(user,fileId).then(data => { return data });
     }
 
     @Post()
@@ -18,12 +23,12 @@ export class GalleryController {
 
     @Put(':fileId')
     async put(@Param("fileId") fileId:string, @Body('user') user: sessionRequest, @Body('data') data ){
-        return this.gallery.PutGallery(user, fileId, data).then(data => { return data});
+        return this.gallery.PutGallery(user, fileId, data).then(data => { return data });
     }
 
     @Delete()
-    async delete(@Param("fileIds") fileIds: string, @Body('user') user: sessionRequest){
+    async delete(@Query("fileIds") fileIds: string, @Body('user') user: sessionRequest){
         const filesId:string[] = fileIds.split(',');
-        return this.gallery.DeleteGallery(user, filesId).then(data => { return data});
+        return this.gallery.DeleteGallery(user, filesId).then(data => { return data });
     }
 }
