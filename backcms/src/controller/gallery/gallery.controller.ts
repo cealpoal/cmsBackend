@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Patch, Put, Query } from '@nestjs/common';
 import { galleryRequest, sessionRequest } from 'src/dto/requests';
 import { GalleryService } from 'src/services/gallery/gallery.service';
 
@@ -13,13 +13,19 @@ export class GalleryController {
 
     @Get(':fileId')
     async getPhoto(@Param("fileId") fileId:string, @Body('user') user: sessionRequest){
-        return this.gallery.GetPhoto(user,fileId).then(data => { return data });
+        return this.gallery.GetPhoto(user, fileId).then(data => { return data });
     }
 
     @Post()
     async post(@Body('user') user: sessionRequest,@Body('data') data: galleryRequest[]){
-        return this.gallery.PostGallery(user,data).then(data => { return data });
+        return this.gallery.PostGallery(user, data).then(data => { return data });
     }
+
+    @Patch()
+    async patch(@Body('user') user: sessionRequest, @Body('data') data: galleryRequest){
+        return this.gallery.PatchGallery(user, data).then(data => { return data });
+    }
+
 
     @Put(':fileId')
     async put(@Param("fileId") fileId:string, @Body('user') user: sessionRequest, @Body('data') data ){

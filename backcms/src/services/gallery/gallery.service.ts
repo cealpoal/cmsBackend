@@ -27,7 +27,17 @@ export class GalleryService {
 
     public async PostGallery(user:sessionRequest, data:galleryRequest[]):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
+        data.forEach((item,index) => {
+            item.id = (index + 1) + '';
+        });
         return this.base.WriteFile('picasso',data).then(data => { return data;} );
+    }
+
+    public async PatchGallery(user:sessionRequest, data:galleryRequest):Promise<boolean>{
+        if(!this.base.VerifySession(user)){ return null; }
+        let list = await this.GetGallery(user).then(data => { return data; });
+        list.push(data);
+        return await this.PostGallery(user, list);
     }
 
     public async PutGallery(user:sessionRequest, id: string, description:string):Promise<boolean>{
@@ -51,9 +61,8 @@ export class GalleryService {
     }
 
     private FindElement(user:sessionRequest, list:any, id:string):number{
-            const index = (list).findIndex((item,index) => {
-            if(item.id == id) return index;
-            return -1; 
+        const index = list.findIndex((item,index) => {
+            if(item.id == id) { return index; }
         });
         return index;
     }
