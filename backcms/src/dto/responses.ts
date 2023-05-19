@@ -10,3 +10,12 @@ export class galleryResponse{
     description:string;
     inscription:Date;
 }
+
+export class newResponse{
+    id:string;
+    pathImage:string;
+    title:string;
+    description:string;
+    inscription:Date;
+    url:string;
+}

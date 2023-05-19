@@ -1,4 +1,4 @@
-import sessionRespose, { galleryResponse } from "./responses";
+import sessionRespose, { galleryResponse, newResponse } from "./responses";
 
 export default class UsersRequest{
     user:string;
@@ -8,3 +8,5 @@ export default class UsersRequest{
 export class sessionRequest extends sessionRespose{}
 
 export class galleryRequest extends galleryResponse{}
+
+export class newRequest extends newResponse{}
