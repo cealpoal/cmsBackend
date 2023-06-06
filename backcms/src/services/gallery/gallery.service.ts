@@ -5,31 +5,39 @@ import UsersRequest, { galleryRequest, sessionRequest } from 'src/dto/requests';
 
 @Injectable()
 export class GalleryService {
+    private url:string = 'asset/picasso/';
 
     constructor(private base:BaseService){}
 
     
-    public async GetGallery(user: sessionRequest):Promise<galleryResponse[]>{
+    public async GetGallery(user: sessionRequest, mapping:boolean = false):Promise<galleryResponse[]>{
         if(!this.base.VerifySession(user)){ return null; }
         const gallery = this.base.ReadFile('picasso').then(data => {
+            if(mapping){
+                data.forEach(element => {
+                    element.path = this.url + element.path;
+                });
+            }
             return data;
         });
         return gallery;
     }
 
-    public async GetPhoto(user:sessionRequest, id: string):Promise<galleryResponse> {
+    public async GetPhoto(user:sessionRequest, id: string, mapping:boolean = false):Promise<galleryResponse> {
         const list = await this.GetGallery(user).then(data => {
+            if(mapping){
+                data.forEach(element => {
+                    element.path = this.url + element.path;
+                });
+            }
             return data;
         });
         const photo:any = list.find(item => item.id == id);
         return photo;
     }
 
-    public async PostGallery(user:sessionRequest, data:galleryRequest[]):Promise<boolean>{
+    private async PostGallery(user:sessionRequest, data:galleryRequest[]):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
-        data.forEach((item,index) => {
-            item.id = (index + 1) + '';
-        });
         return this.base.WriteFile('picasso',data).then(data => { return data;} );
     }
 
@@ -37,7 +45,9 @@ export class GalleryService {
         if(!this.base.VerifySession(user)){ return null; }
         let list = await this.GetGallery(user).then(data => { return data; });
         list.push(data);
-        return await this.PostGallery(user, list);
+        return await this.PostGallery(user, list).then(data => {
+            return data;
+        });
     }
 
     public async PutGallery(user:sessionRequest, id: string, description:string):Promise<boolean>{

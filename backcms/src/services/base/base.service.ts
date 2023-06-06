@@ -15,10 +15,14 @@ export class BaseService {
     private secKey = crypto.randomBytes(32);
 
     public async ReadFile(fileName:string):Promise<any>{
-        const data = fs.readFileSync(this.ruta + fileName + '.json', 'utf8');
-        if(data){
-            const jsonData = JSON.parse(data);
-            return jsonData; 
+        if(fs.existsSync(this.ruta + fileName + '.json')){
+            const data = fs.readFileSync(this.ruta + fileName + '.json', 'utf8');
+            if(data){
+                const jsonData = JSON.parse(data);
+                return jsonData; 
+            }
+        }else{
+            return [];
         }
         return null;
     }

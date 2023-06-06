@@ -5,7 +5,8 @@ export class CommonsService {
     constructor(){}
 
     Deserilized(origin:string):any{
-        return JSON.parse(origin);
+        //return JSON.parse(origin);
+        return origin;
     }
 
 }

@@ -8,7 +8,6 @@ export class galleryResponse{
     path:string;
     id:string;
     description:string;
-    inscription:Date;
 }
 
 export class newResponse{
