@@ -5,45 +5,57 @@ import { newResponse } from 'src/dto/responses';
 
 @Injectable()
 export class NewsService {
+    private url:string = 'src/asset/times/';
 
     constructor(private base:BaseService){}
 
-    public async GetNews(user: sessionRequest):Promise<newResponse[]>{
+    public async GetNews(user: sessionRequest, mapping:boolean = false):Promise<newResponse[]>{
         if(!this.base.VerifySession(user)){ return null; }
         const News = this.base.ReadFile('times').then(data => {
+            if(mapping){
+                data.forEach(element => {
+                    element.pathImage = this.url + element.pathImage;
+                });
+            }
             return data;
         });
         return News;
     }
 
-    public async GetNew(user:sessionRequest, id: string):Promise<newResponse> {
+    public async GetNew(user:sessionRequest, id: string, mapping:boolean = false):Promise<newResponse> {
         const list = await this.GetNews(user).then(data => {
+            if(mapping){
+                data.forEach(element => {
+                    element.pathImage = this.url + element.pathImage;
+                });
+            }
             return data;
         });
         const photo:any = list.find(item => item.id == id);
         return photo;
     }
 
-    public async PostNews(user:sessionRequest, data:newRequest[]):Promise<boolean>{
+    private async PostNews(user:sessionRequest, data:newRequest[]):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
-        data.forEach((item,index) => {
-            item.id = (index + 1) + '';
-        });
-        return this.base.WriteFile('times',data).then(data => { return data;} );
+          return this.base.WriteFile('times',data).then(data => { return data;} );
     }
 
     public async PatchNews(user:sessionRequest, data:newRequest):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
         let list = await this.GetNews(user).then(data => { return data; });
         list.push(data);
-        return await this.PostNews(user, list);
+        return await this.PostNews(user, list).then(data => {
+            return data;
+        });
     }
 
-    public async PutNews(user:sessionRequest, id: string, description:string):Promise<boolean>{
+    public async PutNews(user:sessionRequest, id: string, data:newRequest):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
         let list = await this.GetNews(user).then(data => { return data; });
-        const index = this.FindElement(user, list, id);
-        list[index].description = description;
+        const index = this.base.FindElement(user, list, id);
+        list[index].title = data.title;
+        list[index].description = data.description;
+        list[index].url = data.url;
         return await this.PostNews(user, list).then(data => {
             return data;
         });
@@ -53,16 +65,12 @@ export class NewsService {
         if(!this.base.VerifySession(user)){ return null; }
         let list = await this.GetNews(user).then(data => { return data; });
         ids.forEach(item => {
-            const index = this.FindElement(user, list, item);
-            list = list.splice(index,1);
+            const index = this.base.FindElement(user, list, item);
+            this.base.DeteleFile(this.url + list[index].pathImage); 
+            list.splice(index,1);
         });
-        return this.PostNews(user, list).then(data => { return data; });
-    }
-
-    private FindElement(user:sessionRequest, list:any, id:string):number{
-        const index = list.findIndex((item,index) => {
-            if(item.id == id) { return index; }
-        });
-        return index;
+        if(list && list.length > 0){
+            return this.PostNews(user, list).then(data => { return data; });
+        }
     }
 }

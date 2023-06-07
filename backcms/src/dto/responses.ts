@@ -15,6 +15,5 @@ export class newResponse{
     pathImage:string;
     title:string;
     description:string;
-    inscription:Date;
     url:string;
 }

@@ -5,10 +5,9 @@ import UsersRequest, { galleryRequest, sessionRequest } from 'src/dto/requests';
 
 @Injectable()
 export class GalleryService {
-    private url:string = 'asset/picasso/';
+    private url:string = 'src/asset/picasso/';
 
     constructor(private base:BaseService){}
-
     
     public async GetGallery(user: sessionRequest, mapping:boolean = false):Promise<galleryResponse[]>{
         if(!this.base.VerifySession(user)){ return null; }
@@ -53,7 +52,7 @@ export class GalleryService {
     public async PutGallery(user:sessionRequest, id: string, description:string):Promise<boolean>{
         if(!this.base.VerifySession(user)){ return null; }
         let list = await this.GetGallery(user).then(data => { return data; });
-        const index = this.FindElement(user, list, id);
+        const index = this.base.FindElement(user, list, id);
         list[index].description = description;
         return await this.PostGallery(user, list).then(data => {
             return data;
@@ -64,16 +63,13 @@ export class GalleryService {
         if(!this.base.VerifySession(user)){ return null; }
         let list = await this.GetGallery(user).then(data => { return data; });
         ids.forEach(item => {
-            const index = this.FindElement(user, list, item);
-            list = list.splice(index,1);
+            const index = this.base.FindElement(user, list, item);
+            this.base.DeteleFile(this.url + list[index].path); 
+            list.splice(index,1);
         });
-        return this.PostGallery(user, list).then(data => { return data; });
+        if(list && list.length > 0){
+            return this.PostGallery(user, list).then(data => { return data; });
+        }
     }
 
-    private FindElement(user:sessionRequest, list:any, id:string):number{
-        const index = list.findIndex((item,index) => {
-            if(item.id == id) { return index; }
-        });
-        return index;
-    }
 }

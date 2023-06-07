@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { createCipheriv, randomBytes, scrypt } from 'crypto';
 import { sessionRequest } from 'src/dto/requests';
 import { promisify } from 'util';
+import * as fs from 'fs';
 
-const fs = require('fs');
+//const fs = require('fs');
+//const fs = import * as fs from 'fs';
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
@@ -31,6 +33,27 @@ export class BaseService {
         const frameworksData = JSON.stringify(data);
         fs.writeFileSync(this.ruta + fileName + '.json', frameworksData, 'utf-8');
         return true;        
+    }
+
+    public async DeteleFile(fileName:string):Promise<boolean>{
+        if(fs.existsSync(fileName + '.json')){
+            await fs.unlink(fileName, (err) => {
+                if (err) { console.log(err); return false; }
+            });
+        }
+        return true;
+    }
+
+    public FindElement(user:sessionRequest, list:any[], id:string):number{
+        if(!list || list.length < 1){ return -1;}
+
+        let cont = 0;
+        while(cont < list.length){
+            if(list[cont].id == id){
+                return cont;
+            }
+            cont++;
+        };
     }
 
     public async salacayula(palabra:string):Promise<any>{

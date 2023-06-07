@@ -13,13 +13,13 @@ export class GalleryController {
     @Get()
     async get(@Headers("user") user: string){
         const userSer:sessionRequest = this.common.Deserilized(user);
-        return this.gallery.GetGallery(userSer,true).then(data => { return data });
+        return this.gallery.GetGallery(userSer, true).then(data => { return data });
     }
 
     @Get(':fileId')
     async getPhoto(@Param("fileId") fileId:string, @Headers("user") user: string){
         const userSer:sessionRequest = this.common.Deserilized(user);
-        return this.gallery.GetPhoto(userSer, fileId).then(data => { return data });
+        return this.gallery.GetPhoto(userSer, fileId, true).then(data => { return data });
     }
 
     @Post()
